@@ -1,0 +1,78 @@
+// use prisma-next
+
+enum Role{
+  CUSTOMER
+  ADMIN
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  name String
+  email String @unique
+  password String
+
+  role Role @default(CUSTOMER)
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+
+  // relation
+
+  tickets   Ticket[] @relation("CustomerTickets")
+  assigned  Ticket[] @relation("AssignedTickets")
+  messages  TicketMessage[]
+
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Ticket {
+  id Int @id @default(autoincrement())
+  title       String
+  description String
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority  @default(MEDIUM)
+
+  createdAt   TimestamptzString @default(now())
+  updatedAt   temporal.updatedAtString()
+
+  // relation
+  // which user created the ticket
+  customerId  Int
+  customer    User           @relation("CustomerTickets", fields: [customerId], references: [id])
+
+// which agent is assigned to the ticket
+  assignedToId Int?
+  assignedTo   User?         @relation("AssignedTickets", fields: [assignedToId], references: [id])
+
+  messages    TicketMessage[]
+
+  
+}
+
+model TicketMessage {
+    id        Int      @id @default(autoincrement())
+  message   String
+
+  ticketId  Int
+  createdAt TimestamptzString @default(now())
+
+// relation
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+
+}
