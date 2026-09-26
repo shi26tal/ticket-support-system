@@ -1,10 +1,17 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import {db} from '../../prisma/db.ts'
+import { db } from '../../prisma/db.js'
+import { loginSchema,registerSchema } from '../validations/userValidation.js'
+import {z} from "zod"
+
+// type definition
+// extract the inferred type
+type RegisterData = z.infer<typeof registerSchema>
+type LoginData = z.infer<typeof loginSchema>
 
 
 // register - logic
-export const createUser = async ({name,email,password}) => {
+export const createUser = async ({name,email,password}:RegisterData) => {
 
     // check if email already exist
     const existingUser = await db.orm.public.User.where({email}).first()
@@ -34,7 +41,7 @@ export const createUser = async ({name,email,password}) => {
 }
 
 // login
-export const loginUser = async ({email,password})=> {
+export const loginUser = async ({email,password}:LoginData)=> {
 
     // find user by email
     const user = await db.orm.public.User.where({email}).first()
@@ -52,7 +59,13 @@ export const loginUser = async ({email,password})=> {
 
     const payload = {userId:user.id,role:user.role}
 
-    const token = jwt.sign(payload,process.env.JWT_SECRET,{expiresIn: '1h'})
+    const secretKey = process.env.JWT_SECRET
+
+    if(!secretKey){
+        throw new Error("no secret key found")
+    }
+
+    const token = jwt.sign(payload,secretKey,{expiresIn: '1h'})
 
     return {
         token,

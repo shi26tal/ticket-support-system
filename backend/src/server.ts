@@ -1,4 +1,4 @@
-import express from "express"
+import express, { Request, Response } from "express"
 import { config } from "dotenv"
 
 import userRouter from './routes/userRoutes.js'
@@ -8,7 +8,7 @@ const app = express()
 
 app.use(express.json())
 
-app.get('/',(req,res)=> {
+app.get('/',(req : Request,res : Response)=> {
     res.json({message: 'spport ticket api is running'})
 })
 

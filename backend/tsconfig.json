@@ -1,18 +1,18 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "preserve",
-    "moduleResolution": "bundler",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
+    "rootDir": ".",
+    "outDir": "dist",
     "types": [
       "node"
     ],
     "strict": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "outDir": "dist"
+    "esModuleInterop": true
   },
-  "include": [
-    "**/*.ts"
-  ]
+  "include": ["src/**/*.ts","prisma/**/*.ts", "prisma/db.ts"],
+  "exclude": ["node_modules", "dist"]
 }
