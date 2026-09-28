@@ -25,7 +25,10 @@ export const authenticateToken = (
     if (!secretKey) {
       throw new Error("no secret key");
     }
-    jwt.verify(token, secretKey);
+    const decoded = jwt.verify(token, secretKey);
+
+   
+
     next();
   } catch (error) {
     return res.status(400).json({ message: "unauthorized" });

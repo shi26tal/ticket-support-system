@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express"
 import { config } from "dotenv"
 
-import userRouter from './routes/userRoutes.js'
+import authRouter from './routes/authRoutes.js'
 
 config()
 const app = express()
@@ -13,7 +13,7 @@ app.get('/',(req : Request,res : Response)=> {
 })
 
 
-app.use('/user',userRouter)
+app.use('/auth',authRouter)
 
 
 
