@@ -1,6 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
+interface TokenPayload {
+  userId: number | string;
+  username: string;
+  role: string;
+}
+
 export const authenticateToken = (
   req: Request,
   res: Response,
@@ -17,20 +23,22 @@ export const authenticateToken = (
   const token = authorization.split(" ")[1];
 
   if (!token) {
-    return res.status(400).json({ message: "token not found" });
+    return res.status(401).json({ message: "token not found" });
   }
 
-  try {
-    const secretKey = process.env.JWT_SECRET;
+  const secretKey = process.env.JWT_SECRET;
     if (!secretKey) {
       throw new Error("no secret key");
     }
-    const decoded = jwt.verify(token, secretKey);
+
+  try {
+    
+    const decoded = jwt.verify(token, secretKey) as TokenPayload;
 
    
 
     next();
   } catch (error) {
-    return res.status(400).json({ message: "unauthorized" });
+    return res.status(500).json({ message: "unauthorized" });
   }
 };

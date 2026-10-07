@@ -1,5 +1,4 @@
 import bcrypt from "bcrypt";
-import { prisma } from "../config/db.js";
 import { loginSchema, registerSchema } from "../validations/authValidation.js";
 import { z } from "zod";
 import { generateToken } from "../utils/generateToken.js";

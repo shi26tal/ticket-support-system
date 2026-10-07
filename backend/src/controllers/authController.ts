@@ -7,14 +7,14 @@ export const registerUser = async (req: Request, res: Response) => {
     // so that userService can get access to req.body (name,email,password)
     const user = await createUser(req.body);
 
-    res.status(200).json({
+    res.status(201).json({
       message: "user register successfully",
       user,
     });
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === "user with this email already exists") {
-        return res.status(409).json({
+        return res.status(500).json({
           message: error.message,
         });
       }
@@ -34,14 +34,13 @@ export const login = async (req: Request, res: Response) => {
   } catch (error) {
 
     if(error instanceof Error){
-      if (error.message === "invalid email or password") {
-      return res.status(400).json({
+      if (error.message === "invalid credentials") {
+      return res.status(401).json({
         message: error.message,
       });
     }
 
-    }
-  
+  }
 
     res.status(500).json({
       message: "something went wrong",
