@@ -1,4 +1,4 @@
-import {prisma} from '../config/db.js'
+import { prisma } from "../config/db.js";
 
 export const categoryRepository = {
   findAll: (onlyActive: boolean) =>
@@ -7,14 +7,12 @@ export const categoryRepository = {
       orderBy: { name: "asc" },
     }),
 
-  findById: (id: number) =>
-    prisma.ticketCategory.findUnique({ where: { id } }),
+  findById: (id: number) => prisma.ticketCategory.findUnique({ where: { id } }),
 
   findByName: (name: string) =>
     prisma.ticketCategory.findUnique({ where: { name } }),
 
-  create: (name: string) =>
-    prisma.ticketCategory.create({ data: { name } }),
+  create: (name: string) => prisma.ticketCategory.create({ data: { name } }),
 
   update: (id: number, data: { name?: string; isActive?: boolean }) =>
     prisma.ticketCategory.update({ where: { id }, data }),

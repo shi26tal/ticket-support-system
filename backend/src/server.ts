@@ -5,6 +5,7 @@ import authRouter from './routes/authRoutes.js'
 import userRouter from './routes/userRoutes.js'
 import adminRouter from './routes/adminRoutes.js'
 import categoryRouter from './routes/categoryRoutes.js'
+import ticketRouter from './routes/ticketRoutes.js'
 
 config()
 const app = express()
@@ -20,6 +21,7 @@ app.use('/auth',authRouter)
 app.use('/users',userRouter)
 app.use("/admin",adminRouter)
 app.use("/categories",categoryRouter)
+app.use("/tickets",ticketRouter)
 
 
 
