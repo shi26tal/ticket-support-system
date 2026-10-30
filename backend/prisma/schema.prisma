@@ -27,6 +27,8 @@ model User {
 
   role Role @default(CUSTOMER)
 
+  isActive Boolean @default(true)
+
   createdAt DateTime @default(now()) @db.Timestamptz
   updatedAt DateTime @updatedAt @db.Timestamptz
 
@@ -60,6 +62,10 @@ model Ticket {
   createdAt DateTime @default(now()) @db.Timestamptz
   updatedAt DateTime @updatedAt @db.Timestamptz
 
+  // resolved and closed at
+  resolvedAt DateTime? @db.Timestamptz
+  closedAt   DateTime? @db.Timestamptz
+
   // relation
   // which user created the ticket
   customerId Int
@@ -74,6 +80,12 @@ model Ticket {
   category   TicketCategory @relation(fields: [categoryId], references: [id])
 
   messages TicketMessage[]
+
+  // indexing to find the tickets based on customer, assigned agent, category and status and do queries faster
+  @@index([customerId])
+  @@index([assignedToId, status])
+  @@index([categoryId])
+  @@index([status])
 }
 
 model TicketMessage {
@@ -88,6 +100,9 @@ model TicketMessage {
 
   userId Int
   user   User @relation(fields: [userId], references: [id])
+
+  @@index([ticketId, createdAt])
+  @@index([userId])
 }
 
 model TicketCategory {

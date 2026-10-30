@@ -2,6 +2,9 @@ import express, { Request, Response } from "express"
 import { config } from "dotenv"
 
 import authRouter from './routes/authRoutes.js'
+import userRouter from './routes/userRoutes.js'
+import adminRouter from './routes/adminRoutes.js'
+import categoryRouter from './routes/categoryRoutes.js'
 
 config()
 const app = express()
@@ -14,6 +17,9 @@ app.get('/',(req : Request,res : Response)=> {
 
 
 app.use('/auth',authRouter)
+app.use('/users',userRouter)
+app.use("/admin",adminRouter)
+app.use("/categories",categoryRouter)
 
 
 

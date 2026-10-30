@@ -1,6 +1,6 @@
 import jwt  from "jsonwebtoken"
 
-type JWTPayload ={
+export type JWTPayload ={
     userId: number,
     username:string
     role: "CUSTOMER" | "ADMIN" | "AGENT"

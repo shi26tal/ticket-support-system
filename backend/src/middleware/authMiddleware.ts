@@ -1,11 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { JWTPayload } from "../utils/generateToken.js";
 
-interface TokenPayload {
-  userId: number | string;
-  username: string;
-  role: string;
-}
 
 export const authenticateToken = (
   req: Request,
@@ -33,12 +29,20 @@ export const authenticateToken = (
 
   try {
     
-    const decoded = jwt.verify(token, secretKey) as TokenPayload;
+    const payload = jwt.verify(token, secretKey) as JWTPayload;
+
+    console.log(payload)
+
+    // set the user information in the request headers so that it can be accessed in the next middleware or controller
+
+     req.headers["x-auth-user"] = payload.username;
+    req.headers["x-auth-user-id"] = String(payload.userId);
+    req.headers["x-auth-role"] = payload.role;
 
    
 
     next();
   } catch (error) {
-    return res.status(500).json({ message: "unauthorized" });
+    return res.status(403).json({ message: "unauthorized" });
   }
 };
