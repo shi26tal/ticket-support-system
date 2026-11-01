@@ -15,10 +15,11 @@ export const ticketRepository = {
     categoryId: number;
     customerId: number;
     priority?: TicketPriority;
+    assignedToId?: number | null;
   }) =>
     prisma.ticket.create({
       data,
-      include: { category: { select: { id: true, name: true } } },
+      include: ticketInclude,
     }),
 
   findMany: (where: Prisma.TicketWhereInput, skip: number, take: number) =>

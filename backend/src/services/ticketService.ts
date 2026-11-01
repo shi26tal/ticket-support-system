@@ -2,6 +2,7 @@ import { Role, TicketPriority, TicketStatus } from "../../generated/prisma/enums
 import { categoryRepository } from "../repository/categoryRepository.js";
 import { ticketRepository } from "../repository/ticketRepository.js";
 import { Prisma } from "../../generated/prisma/client.js";
+import { userRepository } from "../repository/userRepository.js";
 
 
 // builds the "who can see what" filter in ONE place
@@ -26,7 +27,9 @@ export const createTicketService = async (
     throw new Error("Category not found or inactive");
   }
 
-  return ticketRepository.create({ ...data, customerId });
+  const agent = await userRepository.findLeastBusyAgent();
+
+  return ticketRepository.create({ ...data, customerId ,assignedToId: agent?.id ?? null});
 };
 
 export const getTickets = async (
