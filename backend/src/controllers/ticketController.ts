@@ -57,3 +57,26 @@ export const getTicket = async (req: Request, res: Response) => {
     })
   }
 };
+
+export const updateTicketStatus = async (req:Request,res:Response) => {
+    try {
+        const id = Number(req.params.id)
+        if(!Number.isInteger(id) || id <= 0){
+            return res.status(400).json({message:"invalid ticket id"})
+        }
+
+        const userId = Number(req.headers["x-auth-user-id"])
+        const role = req.headers["x-auth-role"] as Role
+
+        const ticket = await ticketService.changeStatus(id,userId,role,req.body.status)
+
+        return res.status(200).json({
+            message: "Status updated",
+            ticket
+        })
+    } catch (error) {
+        return res.status(400).json({
+            message: "status update failed"
+        })
+    }
+}

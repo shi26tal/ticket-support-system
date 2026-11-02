@@ -13,3 +13,7 @@ export const listTicketsQuerySchema = z.object({
     page: z.coerce.number().int().positive().default(1),
     limit: z.coerce.number().int().positive().max(50).default(10)
 })
+
+export const updateStatusSchema = z.object({
+    status: z.enum(["IN_PROGRESS","RESOLVED","CLOSED"])
+})

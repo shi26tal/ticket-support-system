@@ -1,9 +1,10 @@
 import jwt  from "jsonwebtoken"
+import { Role } from "../../generated/prisma/enums.js"
 
 export type JWTPayload ={
     userId: number,
     username:string
-    role: "CUSTOMER" | "ADMIN" | "AGENT"
+    role: Role
 }
 
 export const generateToken = ({userId,username,role}:JWTPayload)=> {

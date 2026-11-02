@@ -1,6 +1,5 @@
 import { prisma } from "../config/db.js";
-import { Prisma } from "../../generated/prisma/client.js";
-import { TicketPriority } from "../../generated/prisma/enums.js";
+import { Prisma, TicketPriority, TicketStatus } from "../../generated/prisma/client.js";
 
 const ticketInclude = {
   category: { select: { id: true, name: true } },
@@ -36,6 +35,18 @@ export const ticketRepository = {
 
   findOne: (where: Prisma.TicketWhereInput) =>
     prisma.ticket.findFirst({ where, include: ticketInclude }),
+
+  updateStatus: (id: number, status: TicketStatus) => {
+    return prisma.ticket.update({
+      where: { id },
+      data: {
+        status,
+        ...(status === "RESOLVED" && { resolvedAt: new Date() }),
+        ...(status === "CLOSED" && { closedAt: new Date() }),
+      },
+      include: ticketInclude,
+    });
+  },
 };
 
 // include fetches related records

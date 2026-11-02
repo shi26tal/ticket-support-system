@@ -1,12 +1,20 @@
-import { Role, TicketPriority, TicketStatus } from "../../generated/prisma/enums.js";
+// import { Role, TicketPriority, TicketStatus } from "../../generated/prisma/enums.js";
 import { categoryRepository } from "../repository/categoryRepository.js";
 import { ticketRepository } from "../repository/ticketRepository.js";
-import { Prisma } from "../../generated/prisma/client.js";
+import {
+  Prisma,
+  Role,
+  TicketPriority,
+  TicketStatus,
+} from "../../generated/prisma/client.js";
 import { userRepository } from "../repository/userRepository.js";
-
+import { allowedTransitions } from "../utils/ticketTransitions.js";
 
 // builds the "who can see what" filter in ONE place
-const visibilityFilter = (userId: number, role: Role): Prisma.TicketWhereInput => {
+const visibilityFilter = (
+  userId: number,
+  role: Role,
+): Prisma.TicketWhereInput => {
   if (role === "CUSTOMER") return { customerId: userId };
   if (role === "AGENT") return { assignedToId: userId };
   return {}; // ADMIN sees everything
@@ -29,7 +37,11 @@ export const createTicketService = async (
 
   const agent = await userRepository.findLeastBusyAgent();
 
-  return ticketRepository.create({ ...data, customerId ,assignedToId: agent?.id ?? null});
+  return ticketRepository.create({
+    ...data,
+    customerId,
+    assignedToId: agent?.id ?? null,
+  });
 };
 
 export const getTickets = async (
@@ -43,7 +55,11 @@ export const getTickets = async (
   };
 
   const skip = (query.page - 1) * query.limit;
-  const [tickets, total] = await ticketRepository.findMany(where, skip, query.limit);
+  const [tickets, total] = await ticketRepository.findMany(
+    where,
+    skip,
+    query.limit,
+  );
 
   return {
     tickets,
@@ -66,4 +82,33 @@ export const getTicketById = async (id: number, userId: number, role: Role) => {
     throw new Error("Ticket not found");
   }
   return ticket;
+};
+
+export const changeStatus = async (
+  id: number,
+  userId: number,
+  role: Role,
+  newStatus: TicketStatus,
+) => {
+  const ticket = await ticketRepository.findOne({
+    id,
+    ...visibilityFilter(userId, role),
+  });
+
+  if (!ticket) {
+    throw new Error("Ticket not found");
+  }
+
+  const allowed = allowedTransitions[role][ticket.status] ?? [];
+  //   allowedTransition["AGENT"]["OPEN"]  - > result -> ["IN_PROGRESS"]
+  //  "??" nullish coalescing operator
+  // means it returns the value in left unless that value is null or undefined otherwise it returns the value on right
+
+  if (!allowed.includes(newStatus)) {
+    throw new Error(
+      `cannot change status from ${ticket.status} to ${newStatus}`,
+    );
+  }
+
+  return ticketRepository.updateStatus(id, newStatus);
 };
