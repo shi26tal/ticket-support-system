@@ -9,6 +9,7 @@ import {
 } from "../../generated/prisma/client.js";
 import { userRepository } from "../repository/userRepository.js";
 import { allowedTransitions } from "../utils/ticketTransitions.js";
+import { messageRepository } from "../repository/messageRepository.js";
 
 // builds the "who can see what" filter in ONE place
 const visibilityFilter = (
@@ -112,3 +113,30 @@ export const changeStatus = async (
 
   return ticketRepository.updateStatus(id, newStatus);
 };
+
+export const addMessage = async (ticketId:number,userId:number,role:Role,message:string)=> {
+    const ticket = await ticketRepository.findOne({
+        id:ticketId,
+        ...visibilityFilter(userId,role)
+    })
+    if(!ticket){
+        throw new Error("ticket not found")
+    }
+    if(ticket.status === "CLOSED"){
+        throw new Error("Cannot message a closed ticket")
+    }
+
+    return messageRepository.create(ticketId,userId,message)
+}
+
+export const getMessages = async (ticketId:number,userId:number,role:Role)=> {
+    const ticket = await ticketRepository.findOne({
+        id:ticketId,
+        ...visibilityFilter(userId,role)
+    })
+    if(!ticket){
+        throw new Error("ticket not found")
+    }
+
+    return messageRepository.findByTicket(ticketId)
+}

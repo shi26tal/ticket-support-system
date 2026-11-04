@@ -3,11 +3,13 @@ import { Request, Response } from "express";
 import { listTicketsQuerySchema } from "../validations/ticketValidation.js";
 import { Role } from "../../generated/prisma/enums.js";
 
-
 export const createTicket = async (req: Request, res: Response) => {
   try {
     const customerId = Number(req.headers["x-auth-user-id"]);
-    const ticket = await ticketService.createTicketService(customerId, req.body);
+    const ticket = await ticketService.createTicketService(
+      customerId,
+      req.body,
+    );
     return res.status(201).json({ message: "Ticket created", ticket });
   } catch (error) {
     return res.status(500).json({ message: "something went wrong" });
@@ -34,8 +36,8 @@ export const listTickets = async (req: Request, res: Response) => {
     return res.status(200).json(result);
   } catch (error) {
     return res.status(404).json({
-        message: "tickets not found"
-    })
+      message: "tickets not found",
+    });
   }
 };
 
@@ -53,30 +55,69 @@ export const getTicket = async (req: Request, res: Response) => {
     return res.status(200).json({ ticket });
   } catch (error) {
     return res.status(404).json({
-        message: "not found"
-    })
+      message: "not found",
+    });
   }
 };
 
-export const updateTicketStatus = async (req:Request,res:Response) => {
-    try {
-        const id = Number(req.params.id)
-        if(!Number.isInteger(id) || id <= 0){
-            return res.status(400).json({message:"invalid ticket id"})
-        }
-
-        const userId = Number(req.headers["x-auth-user-id"])
-        const role = req.headers["x-auth-role"] as Role
-
-        const ticket = await ticketService.changeStatus(id,userId,role,req.body.status)
-
-        return res.status(200).json({
-            message: "Status updated",
-            ticket
-        })
-    } catch (error) {
-        return res.status(400).json({
-            message: "status update failed"
-        })
+export const updateTicketStatus = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ message: "invalid ticket id" });
     }
-}
+
+    const userId = Number(req.headers["x-auth-user-id"]);
+    const role = req.headers["x-auth-role"] as Role;
+
+    const ticket = await ticketService.changeStatus(
+      id,
+      userId,
+      role,
+      req.body.status,
+    );
+
+    return res.status(200).json({
+      message: "Status updated",
+      ticket,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: "status update failed",
+    });
+  }
+};
+
+export const postMessage = async (req: Request, res: Response) => {
+  try {
+    const ticketId = Number(req.params.id);
+    if (!Number.isInteger(ticketId) || ticketId <= 0) {
+      return res.status(400).json({ message: "Invalid ticket id" });
+    }
+
+    const userId = Number(req.headers["x-auth-user-id"])
+    const role = req.headers["x-auth-role"] as Role
+
+    const message = await ticketService.addMessage(ticketId,userId,role,req.body.message)
+    return res.status(201).json({message:"message sent",data:message})
+  } catch (error) {
+    return res.status(400).json({message:"message failed to sent"})
+  }
+};
+
+export const listMessages = async (req: Request, res: Response) => {
+  try {
+    const ticketId = Number(req.params.id);
+    if (!Number.isInteger(ticketId) || ticketId <= 0) {
+      return res.status(400).json({ message: "Invalid ticket id" });
+    }
+
+    const userId = Number(req.headers["x-auth-user-id"]);
+    const role = req.headers["x-auth-role"] as Role;
+
+    const messages = await ticketService.getMessages(ticketId, userId, role);
+    return res.status(200).json({ messages });
+  } catch (error) {
+    return res.status(400).json({message:"message failed to list"})
+  }
+};

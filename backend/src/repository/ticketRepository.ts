@@ -1,5 +1,9 @@
 import { prisma } from "../config/db.js";
-import { Prisma, TicketPriority, TicketStatus } from "../../generated/prisma/client.js";
+import {
+  Prisma,
+  TicketPriority,
+  TicketStatus,
+} from "../../generated/prisma/client.js";
 
 const ticketInclude = {
   category: { select: { id: true, name: true } },
@@ -44,6 +48,14 @@ export const ticketRepository = {
         ...(status === "RESOLVED" && { resolvedAt: new Date() }),
         ...(status === "CLOSED" && { closedAt: new Date() }),
       },
+      include: ticketInclude,
+    });
+  },
+
+  assign: (id: number, assignedToId: number) => {
+    return prisma.ticket.update({
+      where: { id },
+      data: { assignedToId },
       include: ticketInclude,
     });
   },

@@ -17,3 +17,7 @@ export const listTicketsQuerySchema = z.object({
 export const updateStatusSchema = z.object({
     status: z.enum(["IN_PROGRESS","RESOLVED","CLOSED"])
 })
+
+export const createMessageSchema = z.object({
+    message: z.string().trim().min(1,"message cannot be empty").max(2000),
+})

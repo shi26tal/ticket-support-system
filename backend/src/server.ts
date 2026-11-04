@@ -25,7 +25,7 @@ app.use("/tickets",ticketRouter)
 
 
 
-const PORT = 5002
+const PORT = process.env.PORT
 
 app.listen(PORT, ()=> {
     console.log(`server is running in : ${PORT}`)
